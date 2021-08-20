@@ -1,25 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {{ title }}
-{% endblock %}
-
-
 {% block body %}
-
-    <header>
-        <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
-            <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
-                <span class="fs-4">Личный кабинет</span>
-            </a>
-            <span class="ms-md-auto">Баланс 120 руб.</span>
-            <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Услуги</a>
-                <a class="me-3 py-2 text-dark text-decoration-none" href="#">История</a>
-                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Пополнить баланс</a>
-            </nav>
-        </div>
-    </header>
 
     <main>
 
@@ -105,8 +86,7 @@
     </main>
 
     <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-success" type="button">Дабавить услуги</button>
-
+        <button class="btn btn-success" type="button">Добавить услуги</button>
     </div>
 
 {% endblock %}
