@@ -49,5 +49,5 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="{{ asset('js/transactions.js') }}"></script>
 {% endblock %}

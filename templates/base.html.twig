@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" sizes="16x16" href="/favicon.ico">
     <title>{% block title %}{{ title }}{% endblock %}</title>
 
     {% block stylesheets %}
@@ -17,9 +18,9 @@
     <header>
         <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
             <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
-                <span class="fs-4">Личный кабинет</span>
+                <span class="fs-4">{{ user.name }}</span>
             </a>
-            <span class="ms-md-auto">Баланс 120 руб.</span>
+            <span class="ms-md-auto">Баланс {{ user.balance }} руб.</span>
             <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
                 <a class="me-3 py-2 text-dark text-decoration-none" href="/">Услуги</a>
                 <a class="me-3 py-2 text-dark text-decoration-none" href="/transactions">История</a>
@@ -32,7 +33,7 @@
 
     {% block footer %}
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-            <p class="col-md-4 mb-0 text-muted">&copy; ООО УК "ДОМ", {{ year }}</p>
+            <p class="col-md-4 mb-0 text-muted">&copy; ООО УК "ДОМ", {{ date()|date("Y") }}</p>
         </footer>
     {% endblock %}
 

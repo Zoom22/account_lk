@@ -19,56 +19,18 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% for subs in subscriptions %}
                 <tr>
-                    <th scope="row">Вывоз мусора</th>
-                    <td>Человек</td>
-                    <td>100 руб.</td>
-                    <td>2</td>
-                    <td>200 руб.</td>
+                    <th scope="row">{{ subs.service.name}}</th>
+                    <td>{{ subs.service.unit}}</td>
+                    <td>{{ subs.service.price}} руб.</td>
+                    <td>{{ subs.quantity}}</td>
+                    <td>{{ subs.service.price * subs.quantity}} руб.</td>
                     <td>
                         <button type="button" class="btn btn-primary btn-sm">Отключить</button>
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row">Лифт</th>
-                    <td>Этаж</td>
-                    <td>20 руб.</td>
-                    <td>8</td>
-                    <td>160 руб.</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm">Отключить</button>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Домофон</th>
-                    <td>Квартира</td>
-                    <td>150 руб.</td>
-                    <td>1</td>
-                    <td>150 руб.</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm">Отключить</button>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Видеонаблюдение</th>
-                    <td>Квартира</td>
-                    <td>400 руб.</td>
-                    <td>1</td>
-                    <td>400 руб.</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm">Отключить</button>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Горячая вода</th>
-                    <td>куб.м.</td>
-                    <td>300 руб.</td>
-                    <td>10</td>
-                    <td>3 000 руб.</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-sm">Отключить</button>
-                    </td>
-                </tr>
+                {% endfor %}
                 </tbody>
                 <tfoot>
                 <tr>
@@ -76,17 +38,51 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <th scope="row">3 910 руб.</th>
-
+                    <th scope="row">{{ total }} руб.</th>
                 </tr>
                 </tfoot>
 
             </table>
         </div>
-    </main>
+
 
     <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-success" type="button">Добавить услуги</button>
+        <button class="btn btn-success" type="button" id="add-btn">Добавить услуги</button>
     </div>
 
+        <div id="add-tbl" class="table-responsive mt-3" hidden>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Услуга</th>
+                    <th scope="col">Ед. измерения</th>
+                    <th scope="col">Цена за ед.</th>
+                    <th scope="col">Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for service in services %}
+                    <tr>
+                        <th scope="row">{{ service.name}}</th>
+                        <td>{{ service.unit}}</td>
+                        <td>{{ service.price}} руб.</td>
+                        <td>
+                            <form action="/add/{{ service.id }}" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm" name="add" value="{{ service.id }}">
+                                Подключить
+                            </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/index.js') }}"></script>
 {% endblock %}
