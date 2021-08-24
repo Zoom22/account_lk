@@ -23,41 +23,6 @@ class TransactionController extends AbstractController
     public function index(UserRepository $repository, TransactionRepository $transactionsRepository): Response
     {
 
-        $transactions = [
-            [
-                'id' => 1,
-                'date' => '30.06.2021',
-                'service' => 'Домофон',
-                'period' => 'июль',
-                'price' => 150,
-                'balance' => 500,
-            ],
-            [
-                'id' => 2,
-                'date' => '30.06.2021',
-                'service' => 'Лифт',
-                'period' => 'июль',
-                'price' => 160,
-                'balance' => 340,
-            ],
-            [
-                'id' => 3,
-                'date' => '31.07.2021',
-                'service' => 'Домофон',
-                'period' => 'август',
-                'price' => 150,
-                'balance' => 500,
-            ],
-            [
-                'id' => 4,
-                'date' => '31.07.2021',
-                'service' => 'Лифт',
-                'period' => 'август',
-                'price' => 160,
-                'balance' => 340,
-            ],
-        ];
-
         $user = $repository->find(1);
 
         $transactions = $transactionsRepository->findBy(['user' => $user]);

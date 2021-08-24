@@ -1,4 +1,4 @@
-  
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -7,5 +7,7 @@
 /public/bundles/
 /var/
 /vendor/
+/vendor1/
+/var1/
 .idea
 ###< symfony/framework-bundle ###

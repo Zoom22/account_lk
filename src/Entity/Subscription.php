@@ -20,6 +20,7 @@ class Subscription
 
     /**
      * @ORM\Column(type="integer")
+     *
      */
     private $quantity;
 

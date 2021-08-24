@@ -3,11 +3,19 @@
 {% block body %}
 <div class="container py-3">
     <h2>Подписка на услугу - {{ service.name }}</h2>
-    <div class="mt-3 justify-content-center">
+    <div class="mt-3 mb-3 justify-content-center">
         Стоимость составляет {{ service.price }} руб. / {{ service.unit }}
     </div>
 {{ form_start(subscriptionForm) }}
+    {% if service.unit != "Квартира" %}
+
     {{ form_widget(subscriptionForm) }}
+
+{% else %}
+{{ form_row(subscriptionForm.quantity, {'label': false, 'attr': {'hidden': 'true', 'value': 1}}) }}
+{#    {{ form_widget(subscriptionForm, {'attr': {'hidden': 'true', 'value': 1}}) }}#}
+
+    {% endif %}
     <button type="button" class="btn btn-danger btn-sm">Отмена</button>
     <button type="submit" class="btn btn-primary btn-sm">Подписаться</button>
     {{ form_end(subscriptionForm) }}
