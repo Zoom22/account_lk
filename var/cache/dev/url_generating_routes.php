@@ -4,8 +4,9 @@
 
 return [
     'app_services_index' => [[], ['_controller' => 'App\\Controller\\ServicesController::index'], [], [['text', '/']], [], []],
-    'app_services_transactions' => [[], ['_controller' => 'App\\Controller\\ServicesController::transactions'], [], [['text', '/transactions']], [], []],
-    'app_services_addservice' => [['id'], ['_controller' => 'App\\Controller\\ServicesController::addService'], ['id' => '\\d+'], [['variable', '/', '\\d+', 'id', true], ['text', '/add']], [], []],
-    'subscription' => [[], ['_controller' => 'App\\Controller\\SubscriptionController::index'], [], [['text', '/subscription']], [], []],
+    'app_subscription_add' => [[], ['_controller' => 'App\\Controller\\SubscriptionController::add'], [], [['text', '/add']], [], []],
+    'app_subscription_delete' => [[], ['_controller' => 'App\\Controller\\SubscriptionController::delete'], [], [['text', '/delete']], [], []],
+    'transaction' => [[], ['_controller' => 'App\\Controller\\TransactionController::index'], [], [['text', '/transaction']], [], []],
+    'app_transaction_deposit' => [[], ['_controller' => 'App\\Controller\\TransactionController::deposit'], [], [['text', '/deposit']], [], []],
     '_preview_error' => [['code', '_format'], ['_controller' => 'error_controller::preview', '_format' => 'html'], ['code' => '\\d+'], [['variable', '.', '[^/]++', '_format', true], ['variable', '/', '\\d+', 'code', true], ['text', '/_error']], [], []],
 ];

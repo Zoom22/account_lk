@@ -66,10 +66,10 @@ class Service extends \App\Entity\Service implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'unit', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'subscriptions'];
+            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'unit', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'subscriptions', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'transactions'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'unit', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'subscriptions'];
+        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'unit', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'subscriptions', '' . "\0" . 'App\\Entity\\Service' . "\0" . 'transactions'];
     }
 
     /**
@@ -288,6 +288,39 @@ class Service extends \App\Entity\Service implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeSubscription', [$subscription]);
 
         return parent::removeSubscription($subscription);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTransactions(): \Doctrine\Common\Collections\Collection
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getTransactions', []);
+
+        return parent::getTransactions();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addTransaction(\App\Entity\Transaction $transaction): \App\Entity\Service
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addTransaction', [$transaction]);
+
+        return parent::addTransaction($transaction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function removeTransaction(\App\Entity\Transaction $transaction): \App\Entity\Service
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeTransaction', [$transaction]);
+
+        return parent::removeTransaction($transaction);
     }
 
 }

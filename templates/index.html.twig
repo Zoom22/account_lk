@@ -27,7 +27,9 @@
                     <td>{{ subs.quantity}}</td>
                     <td>{{ subs.service.price * subs.quantity}} руб.</td>
                     <td>
-                        <button type="button" class="btn btn-primary btn-sm">Отключить</button>
+                        <form action="/delete" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm" name="delete" value="{{ subs.id }}">Отключить</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -67,8 +69,8 @@
                         <td>{{ service.unit}}</td>
                         <td>{{ service.price}} руб.</td>
                         <td>
-                            <form action="/add/{{ service.id }}" method="post">
-                            <button type="submit" class="btn btn-primary btn-sm" name="add" value="{{ service.id }}">
+                            <form action="/add">
+                            <button type="submit" class="btn btn-primary btn-sm" name="serviceId" value="{{ service.id }}">
                                 Подключить
                             </button>
                             </form>
