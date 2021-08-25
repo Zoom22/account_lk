@@ -31,15 +31,33 @@
     {% for ta in transactions %}
 
         <div class="card mb-3">
-            <div class="card-header">
-                {{ ta.service.name ?? "Пополнение баланса" }}
-            </div>
-            <div class="card-body">
-                <p class="card-text">
-                    {{ ta.createdAt | date }} - за {{ ta.period }} списано {{ ta.amount }} руб.
-                </p>
-            </div>
+            {% if ta.service %}
+                <div class="card-header" style="background-color: {{ ta.amount > 0 ? 'lightblue': 'darkseagreen' }};">
+                    {{ ta.service.name }}
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        {{ ta.createdAt | date }} - за {{ ta.getPeriodToString() }}
+                        {{ ta.amount > 0 ? 'списано': 'возвращено' }}
+                          {{ ta.amount| abs }} руб.
+                        Баланс {{ ta.result }} руб.
+                    </p>
+                </div>
+            {% else %}
+                <div class="card-header" style="background-color: darkseagreen;">
+                    Пополнение баланса
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        {{ ta.createdAt | date }} - баланс пополнен на {{ ta.amount }} руб. Баланс {{ ta.result }} руб.
+                    </p>
+                </div>
+            {% endif %}
         </div>
+
+
+
+
     {% endfor %}
     <div class="mt-5 d-grid gap-2 col-6 mx-auto">
         <button class="btn btn-success" type="button">Расчетный день</button>

@@ -45,6 +45,11 @@ class Transaction
      */
     private $service;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $result;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +111,40 @@ class Transaction
     public function setService(?Service $service): self
     {
         $this->service = $service;
+
+        return $this;
+    }
+
+    public function getPeriodToString(): string
+    {
+        return [
+            'январь',
+            'февраль',
+            'март',
+            'апрель',
+            'май',
+            'июнь',
+            'июль',
+            'август',
+            'сентябрь',
+            'октябрь',
+            'ноябрь',
+            'декабрь',
+        ]
+            [intdiv($this->getPeriod(), 10000)-1]
+            . ' '
+            . ($this->getPeriod() % 10000)
+            . ' года';
+    }
+
+    public function getResult(): ?int
+    {
+        return $this->result;
+    }
+
+    public function setResult(int $result): self
+    {
+        $this->result = $result;
 
         return $this;
     }

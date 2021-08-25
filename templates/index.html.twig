@@ -3,54 +3,58 @@
 {% block body %}
 
     <main>
-
+        {% if subscriptions| length > 0 %}
         <h2 class="display-6 text-center mb-4">Подключенные услуги</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Услуга</th>
+                        <th scope="col">Ед. измерения</th>
+                        <th scope="col">Цена за ед.</th>
+                        <th scope="col">Количество</th>
+                        <th scope="col">Цена</th>
+                        <th scope="col">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for subs in subscriptions %}
+                        <tr>
+                            <th scope="row">{{ subs.service.name }}</th>
+                            <td>{{ subs.service.unit }}</td>
+                            <td>{{ subs.service.price }} руб.</td>
+                            <td>{{ subs.quantity }}</td>
+                            <td>{{ subs.service.price * subs.quantity }} руб.</td>
+                            <td>
+                                <form action="/delete" method="post">
+                                    <button type="submit" class="btn btn-primary btn-sm" name="delete"
+                                            value="{{ subs.id }}">Отключить
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th scope="row">Итого:</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <th scope="row">{{ total }} руб.</th>
+                    </tr>
+                    </tfoot>
 
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Услуга</th>
-                    <th scope="col">Ед. измерения</th>
-                    <th scope="col">Цена за ед.</th>
-                    <th scope="col">Количество</th>
-                    <th scope="col">Цена</th>
-                    <th scope="col">Действия</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for subs in subscriptions %}
-                <tr>
-                    <th scope="row">{{ subs.service.name}}</th>
-                    <td>{{ subs.service.unit}}</td>
-                    <td>{{ subs.service.price}} руб.</td>
-                    <td>{{ subs.quantity}}</td>
-                    <td>{{ subs.service.price * subs.quantity}} руб.</td>
-                    <td>
-                        <form action="/delete" method="post">
-                            <button type="submit" class="btn btn-primary btn-sm" name="delete" value="{{ subs.id }}">Отключить</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-                <tfoot>
-                <tr>
-                    <th scope="row">Итого:</th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <th scope="row">{{ total }} руб.</th>
-                </tr>
-                </tfoot>
+                </table>
+            </div>
 
-            </table>
+        {% else %}
+            <h4 class="display-6 text-center mb-4">Нет подключенных услуг</h4>
+        {% endif %}
+
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button class="btn btn-success" type="button" id="add-btn">Добавить услуги</button>
         </div>
-
-
-    <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-success" type="button" id="add-btn">Добавить услуги</button>
-    </div>
 
         <div id="add-tbl" class="table-responsive mt-3" hidden>
             <table class="table">
@@ -65,14 +69,15 @@
                 <tbody>
                 {% for service in services %}
                     <tr>
-                        <th scope="row">{{ service.name}}</th>
-                        <td>{{ service.unit}}</td>
-                        <td>{{ service.price}} руб.</td>
+                        <th scope="row">{{ service.name }}</th>
+                        <td>{{ service.unit }}</td>
+                        <td>{{ service.price }} руб.</td>
                         <td>
                             <form action="/add">
-                            <button type="submit" class="btn btn-primary btn-sm" name="serviceId" value="{{ service.id }}">
-                                Подключить
-                            </button>
+                                <button type="submit" class="btn btn-primary btn-sm" name="serviceId"
+                                        value="{{ service.id }}">
+                                    Подключить
+                                </button>
                             </form>
                         </td>
                     </tr>

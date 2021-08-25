@@ -2,15 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Subscription;
 use App\Entity\Transaction;
 use App\Form\SubscriptionFormType;
 use App\Repository\ServiceRepository;
 use App\Repository\SubscriptionRepository;
 use App\Repository\UserRepository;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,7 +36,6 @@ class SubscriptionController extends AbstractController
         //hardcoded logged user for this test task
         $user = $userRepository->find(1);
 
-
         $serviceId = intval($request->query->get('serviceId'));
         // todo Валидация на корректность serviceId
         if ($serviceId) {
@@ -46,38 +44,40 @@ class SubscriptionController extends AbstractController
             ]);
             $service = $serviceRepository->find($serviceId);
 
-        }
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+            $form->handleRequest($request);
 
-            if (($subscriptionRepository->isNotSubscribed($user, $service))) {
+            if (
+                $form->isSubmitted()
+                && $form->isValid()
+                && $subscriptionRepository->isNotSubscribed($user, $service)
+            ) {
                 $subscription = $form->getData();
                 $subscription->setService($service);
                 $subscription->setUser($user);
-                $total = $subscription->getQuantity() * $service->getPrice();
+                $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
+                $total = round($subscription->getQuantity() * $service->getPrice() * $period, 0);
                 if ($user->getBalance() >= $total) {
                     $em->persist($subscription);
                     $em->flush();
-                    //todo Запись транзакции с учетом даты
                     $transaction = new Transaction();
                     $transaction
                         ->setPeriod(date('mY'))
                         ->setAmount($total)
                         ->setService($service)
-                        ->setUser($user)
-                    ;
+                        ->setResult($user->getBalance() - $total)
+                        ->setUser($user);
                     $em->persist($transaction);
                     $em->flush();
-                    $user->setBalance($user->getBalance()-$total);
+                    $user->setBalance($user->getBalance() - $total);
                     $em->persist($transaction);
                     $em->flush();
+                    return $this->redirectToRoute('app_services_index');
+                } else {
+                    //todo Обработка ошибки "Недостаточно средств на балансе"
+                    return $this->redirectToRoute('app_services_index');
                 }
-                //todo Обработка ошибки "Недостаточно средств на балансе"
             }
-            //todo Обработка ошибки "Уже подписан"
-
-            return $this->redirectToRoute('app_services_index');
-
+            //todo Обработка ошибки "Уже подписан" и ошибок формы
         }
 
         return $this->render('create.html.twig', [
@@ -86,22 +86,42 @@ class SubscriptionController extends AbstractController
             'user' => $user,
             'service' => $service,
         ]);
-
-        return $this->redirectToRoute('app_services_index');
     }
 
     /**
      * @Route("/delete", methods={"POST"})
      */
-    public function delete(Request $request, EntityManagerInterface $entityManager, SubscriptionRepository $subscriptionRepository)
+    public function delete(
+        Request $request,
+        EntityManagerInterface $em,
+        SubscriptionRepository $subscriptionRepository,
+        UserRepository $userRepository
+    )
     {
         $subscriptionId = intval($request->get('delete'));
         //todo Валидация данных POST
 
         //todo в шаблоне вывод подтверждения удаления
         $subscription = $subscriptionRepository->find($subscriptionId);
-        $entityManager->remove($subscription);
-        $entityManager->flush();
+
+        //hardcoded logged user for this test task
+        $user = $userRepository->find(1);
+        $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
+        $total = round($subscription->getQuantity() * $subscription->getService()->getPrice() * $period, 0);
+        $user->setBalance($user->getBalance() + $total);
+        $em->persist($user);
+        $em->flush();
+        $em->remove($subscription);
+        $em->flush();
+        $transaction = new Transaction();
+        $transaction
+            ->setPeriod(date('mY'))
+            ->setAmount(-$total)
+            ->setService($subscription->getService())
+            ->setResult($user->getBalance())
+            ->setUser($user);
+        $em->persist($transaction);
+        $em->flush();
         return $this->redirectToRoute('app_services_index');
     }
 }

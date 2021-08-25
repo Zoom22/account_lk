@@ -4,14 +4,10 @@
 namespace App\Controller;
 
 
-use App\Entity\Service;
-use App\Entity\Subscription;
 use App\Repository\ServiceRepository;
 use App\Repository\SubscriptionRepository;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ServicesController extends AbstractController
@@ -25,10 +21,9 @@ class ServicesController extends AbstractController
         ServiceRepository $serviceRepository
     )
     {
-        //hardcoded logged userId for this test task
-        $userId = 1;
+        //hardcoded logged user for this test task
+        $user = $userRepository->find(1);
 
-        $user = $userRepository->find($userId);
         $subscriptions = $subscriptionRepository->findBy(['user' => $user]);
 
         $services = $serviceRepository->findNotSubscribed($user);
@@ -46,6 +41,4 @@ class ServicesController extends AbstractController
             'services' => $services,
         ]);
     }
-
-
 }

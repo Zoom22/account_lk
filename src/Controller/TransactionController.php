@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Transaction;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
+use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,8 @@ class TransactionController extends AbstractController
         $user = $repository->find(1);
 
         $transactions = $transactionsRepository->findBy(['user' => $user]);
+
+        $diff = Carbon::now()->diffInDays(new Carbon('first day of next month'));
 
         return $this->render("transaction/index.html.twig", [
             'title' => 'История операций',
@@ -53,6 +56,7 @@ class TransactionController extends AbstractController
             $transaction
                 ->setPeriod(date('mY'))
                 ->setAmount($deposit)
+                ->setResult($user->getBalance())
                 ->setUser($user)
             ;
             $em->persist($transaction);
