@@ -11,21 +11,8 @@
     <h3 class="display-6 text-center mb-4">История транзакций по счету</h3>
     <div class="row">
         <div class="mb-5 col-4">
-            <label for="from" class="form-label">Фильтр по датам:</label>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" id="from" name="from" placeholder="Начало">
-                <span class="input-group-text">-</span>
-                <input type="text" class="form-control" id="to" name="to" placeholder="Конец">
-            </div>
-        </div>
-        <div class="mb-5 col-4">
-            <label for="filter" class="form-label">Фильтр по услуге:</label>
-            <select class="form-select" id="filter" aria-label="Service filter">
-                <option selected>Выберите услугу</option>
-                <option value="1">Лифт</option>
-                <option value="2">Домофон</option>
-                <option value="3">Горячая вода</option>
-            </select>
+            {{ form_start(filterForm) }} {{ form_widget(filterForm) }}
+            {{ form_end(filterForm) }}
         </div>
     </div>
     {% for ta in transactions %}
@@ -37,7 +24,7 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        {{ ta.createdAt | date }} - за {{ ta.getPeriodToString() }}
+                        {{ ta.createdAt | format_datetime(pattern="dd MMMM yyyy 'г.'", locale='ru') }} - за {{ ta.getPeriodToString() }}
                         {{ ta.amount > 0 ? 'списано': 'возвращено' }}
                           {{ ta.amount| abs }} руб.
                         Баланс {{ ta.result }} руб.
@@ -49,7 +36,7 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        {{ ta.createdAt | date }} - баланс пополнен на {{ ta.amount }} руб. Баланс {{ ta.result }} руб.
+                        {{ ta.createdAt | format_datetime(pattern="dd MMMM yyyy 'г.'", locale='ru') }} - баланс пополнен на {{ ta.amount }} руб. Баланс {{ ta.result }} руб.
                     </p>
                 </div>
             {% endif %}

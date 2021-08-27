@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Transaction;
+use App\Form\SubscriptionFormType;
+use App\Form\TransactionFilterFormType;
+use App\Repository\ServiceRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
@@ -21,19 +24,42 @@ class TransactionController extends AbstractController
      * @return Response
      */
 
-    public function index(UserRepository $repository, TransactionRepository $transactionsRepository): Response
+    public function index(Request $request, UserRepository $userRepository, TransactionRepository $transactionsRepository, ServiceRepository $serviceRepository): Response
     {
+        $user = $userRepository->getUser();
 
-        $user = $repository->find(1);
+        $form = $this->createForm(TransactionFilterFormType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            extract($request->request->get('transaction_filter_form'));
 
-        $transactions = $transactionsRepository->findBy(['user' => $user]);
-
-        $diff = Carbon::now()->diffInDays(new Carbon('first day of next month'));
-
+            $qb = $transactionsRepository->createQueryBuilder('t');
+            if (!empty($start)) {
+                $qb->andWhere('t.createdAt >= :start')
+                    ->setParameter('start', Carbon::parse($start));
+            }
+            if (!empty($end)) {
+                $qb->andWhere('t.createdAt <= :end')
+                    ->setParameter('end', Carbon::parse($end)->addDay());
+            }
+            if (!empty($serviceId)){
+                $service = $transactionsRepository->find($serviceId)->getService();
+                $qb->andWhere('t.service = :service')
+                    ->setParameter('service', $service);
+            }
+            $transactions = $qb
+                ->andWhere('t.user = :user')
+                ->setParameter('user', $user)
+                ->getQuery()
+                ->getResult();
+        } else {
+            $transactions = $transactionsRepository->findBy(['user' => $user]);
+        }
         return $this->render("transaction/index.html.twig", [
             'title' => 'История операций',
             'user' => $user,
             'transactions' => $transactions,
+            'filterForm' => $form->createView(),
         ]);
     }
 
@@ -44,7 +70,8 @@ class TransactionController extends AbstractController
      */
     public function deposit(Request $request, UserRepository $userRepository, EntityManagerInterface $em)
     {
-        $user = $userRepository->find(1);
+        $user = $userRepository->getUser();
+
         $deposit = intval($request->request->get('deposit'));
 
         //todo Валидация на положительное число, обработка ошибки

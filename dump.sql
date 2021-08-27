@@ -36,7 +36,7 @@ CREATE TABLE `doctrine_migration_versions` (
 
 LOCK TABLES `doctrine_migration_versions` WRITE;
 /*!40000 ALTER TABLE `doctrine_migration_versions` DISABLE KEYS */;
-INSERT INTO `doctrine_migration_versions` VALUES ('DoctrineMigrations\\Version20210820114625','2021-08-20 12:48:29',357),('DoctrineMigrations\\Version20210822041728','2021-08-22 05:19:03',305),('DoctrineMigrations\\Version20210822123728','2021-08-22 13:39:17',1731),('DoctrineMigrations\\Version20210824045951','2021-08-24 06:01:16',1760);
+INSERT INTO `doctrine_migration_versions` VALUES ('DoctrineMigrations\\Version20210820114625','2021-08-20 12:48:29',357),('DoctrineMigrations\\Version20210822041728','2021-08-22 05:19:03',305),('DoctrineMigrations\\Version20210822123728','2021-08-22 13:39:17',1731),('DoctrineMigrations\\Version20210824045951','2021-08-24 06:01:16',1760),('DoctrineMigrations\\Version20210825044652','2021-08-25 05:47:20',221);
 /*!40000 ALTER TABLE `doctrine_migration_versions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -84,7 +84,7 @@ CREATE TABLE `subscription` (
   KEY `IDX_A3C664D3ED5CA9E6` (`service_id`),
   CONSTRAINT `FK_A3C664D3A76ED395` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FK_A3C664D3ED5CA9E6` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,7 +93,7 @@ CREATE TABLE `subscription` (
 
 LOCK TABLES `subscription` WRITE;
 /*!40000 ALTER TABLE `subscription` DISABLE KEYS */;
-INSERT INTO `subscription` VALUES (2,1,4,1,'2021-08-22 19:41:26'),(3,1,8,200,'2021-08-22 21:02:20'),(5,2,7,30,'2021-08-22 22:40:17'),(6,1,2,10,'2021-08-22 19:07:27'),(25,1,10,1,'2021-08-24 04:52:12'),(27,1,7,1,'2021-08-24 08:30:59'),(30,1,1,2,'2021-08-24 14:38:05'),(32,1,3,1,'2021-08-24 15:46:38');
+INSERT INTO `subscription` VALUES (5,2,7,30,'2021-08-22 22:40:17'),(39,1,3,1,'2021-08-25 11:07:31'),(40,1,4,1,'2021-08-25 11:09:11'),(41,1,2,4,'2021-08-26 07:39:47'),(42,1,10,1,'2021-08-26 08:12:05'),(43,1,7,1,'2021-08-26 16:46:53'),(45,1,5,12,'2021-08-26 16:47:19');
 /*!40000 ALTER TABLE `subscription` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -111,12 +111,13 @@ CREATE TABLE `transaction` (
   `created_at` datetime NOT NULL COMMENT '(DC2Type:datetime_immutable)',
   `period` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
+  `result` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IDX_723705D1A76ED395` (`user_id`),
   KEY `IDX_723705D1ED5CA9E6` (`service_id`),
   CONSTRAINT `FK_723705D1A76ED395` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FK_723705D1ED5CA9E6` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -125,7 +126,7 @@ CREATE TABLE `transaction` (
 
 LOCK TABLES `transaction` WRITE;
 /*!40000 ALTER TABLE `transaction` DISABLE KEYS */;
-INSERT INTO `transaction` VALUES (1,1,NULL,'2021-08-24 08:23:41',82021,1000),(12,1,3,'2021-08-24 15:37:39',82021,150),(13,1,3,'2021-08-24 15:46:38',82021,150);
+INSERT INTO `transaction` VALUES (1,1,NULL,'2021-08-01 08:23:41',82021,1000,1000),(12,1,3,'2021-08-03 15:37:39',82021,150,850),(13,1,3,'2021-08-05 15:46:38',82021,150,700),(16,1,7,'2021-08-07 10:14:56',82021,-11,711),(30,1,2,'2021-08-09 07:39:48',82021,15,2927),(31,1,10,'2021-08-11 08:12:05',82021,39,2888),(32,1,7,'2021-08-13 16:46:53',82021,10,2878),(33,1,5,'2021-08-15 16:47:06',82021,581,2297),(34,1,5,'2021-08-02 16:47:10',82021,-581,2878),(35,1,5,'2021-08-04 16:47:19',82021,697,2181);
 /*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,7 +151,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Петров Илья Семенович',2500),(2,'Sergey',4000);
+INSERT INTO `user` VALUES (1,'Петров Илья Семенович',2181),(2,'Sergey',4000);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -163,4 +164,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-24 16:10:24
+-- Dump completed on 2021-08-27  3:18:18

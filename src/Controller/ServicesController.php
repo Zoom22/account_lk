@@ -21,8 +21,7 @@ class ServicesController extends AbstractController
         ServiceRepository $serviceRepository
     )
     {
-        //hardcoded logged user for this test task
-        $user = $userRepository->find(1);
+        $user = $userRepository->getUser();
 
         $subscriptions = $subscriptionRepository->findBy(['user' => $user]);
 

@@ -33,8 +33,7 @@ class SubscriptionController extends AbstractController
         SubscriptionRepository $subscriptionRepository
     )
     {
-        //hardcoded logged user for this test task
-        $user = $userRepository->find(1);
+        $user = $userRepository->getUser();
 
         $serviceId = intval($request->query->get('serviceId'));
         // todo Валидация на корректность serviceId
@@ -104,8 +103,8 @@ class SubscriptionController extends AbstractController
         //todo в шаблоне вывод подтверждения удаления
         $subscription = $subscriptionRepository->find($subscriptionId);
 
-        //hardcoded logged user for this test task
-        $user = $userRepository->find(1);
+        $user = $userRepository->getUser();
+
         $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
         $total = round($subscription->getQuantity() * $subscription->getService()->getPrice() * $period, 0);
         $user->setBalance($user->getBalance() + $total);

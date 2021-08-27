@@ -36,15 +36,26 @@ class TransactionRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Transaction
+
+//    public function findOneBySomeField($value): ?Transaction
+//    {
+//        return $this->createQueryBuilder('t')
+//            ->andWhere('t.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
+
+    public function filterByService($serviceId, ServiceRepository $serviceRepository)
     {
+        $service = $serviceRepository->find(intval($serviceId));
+
         return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('t.service = :val')
+            ->setParameter('val', $service)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
+
 }
