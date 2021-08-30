@@ -11,6 +11,7 @@ use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,15 +30,19 @@ class TransactionController extends AbstractController
     public function index(
         Request               $request,
         UserRepository        $userRepository,
-        TransactionRepository $transactionsRepository
+        TransactionRepository $transactionsRepository,
+        PaginatorInterface    $paginator
     ): Response
     {
         $user = $userRepository->getUser();
 
-        $form = $this->createForm(TransactionFilterFormType::class);
+        $form = $this->createForm(TransactionFilterFormType::class, null, ['method' => 'GET']);
+
+//        dd($request->query);
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            extract($request->request->get('transaction_filter_form'));
+            extract($request->query->get('transaction_filter_form'));
 
             $qb = $transactionsRepository->createQueryBuilder('t');
             if (!empty($start)) {
@@ -57,15 +62,23 @@ class TransactionController extends AbstractController
                 ->andWhere('t.user = :user')
                 ->setParameter('user', $user)
                 ->orderBy('t.createdAt', 'DESC')
-                ->getQuery()
-                ->getResult();
+//                ->getQuery()
+//                ->getResult()
+            ;
         } else {
             $transactions = $transactionsRepository->findBy(['user' => $user]);
         }
+
+        $pagination = $paginator->paginate(
+            $transactions, /* query NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            5 /*limit per page*/
+        );
+
         return $this->render("transaction/index.html.twig", [
             'title' => 'История операций',
             'user' => $user,
-            'transactions' => $transactions,
+            'pagination' => $pagination,
             'filterForm' => $form->createView(),
         ]);
     }

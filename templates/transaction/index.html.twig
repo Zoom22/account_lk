@@ -8,7 +8,7 @@
 
 
 {% block body %}
-    {% if transactions| length > 0 %}
+    {% if pagination.totalItemCount > 0 %}
         <h3 class="display-6 text-center mb-4">История транзакций по счету</h3>
 
         {{ form_start(filterForm) }}
@@ -31,7 +31,7 @@
         </div>
         {{ form_end(filterForm) }}
 
-        {% for ta in transactions %}
+        {% for ta in pagination %}
 
             <div class="card mb-3">
                 {% if ta.service %}
@@ -63,6 +63,7 @@
             </div>
 
         {% endfor %}
+        {{ knp_pagination_render(pagination) }}
 
     {% else %}
         <h4 class="display-6 text-center mb-4">Нет транзакций по счету</h4>
