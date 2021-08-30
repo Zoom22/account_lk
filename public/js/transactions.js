@@ -18,15 +18,7 @@ $.datepicker.regional['ru'] = {
 $.datepicker.setDefaults($.datepicker.regional['ru']);
 
 $(function() {
-    var dates = $( "#transaction_filter_form_start, #transaction_filter_form_end" ).datepicker({
-        onSelect: function( selectedDate ) {
-            var option = this.id == "transaction_filter_form_start" ? "minDate" : "maxDate",
-                instance = $( this ).data( "datepicker" ),
-                date = $.datepicker.parseDate(
-                    instance.settings.dateFormat ||
-                    $.datepicker._defaults.dateFormat,
-                    selectedDate, instance.settings );
-            dates.not( this ).datepicker( "option", option, date );
-        }
-    });
+    $("#transaction_filter_form_start, #transaction_filter_form_end").datepicker();
+
 });
+

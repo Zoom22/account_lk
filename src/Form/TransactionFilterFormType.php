@@ -6,7 +6,6 @@ use App\Entity\Transaction;
 use App\Repository\TransactionRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,17 +19,16 @@ class TransactionFilterFormType extends AbstractType
             ->add('start', TextType::class, [
                 'label' => 'Фильтр по датам:',
                 'attr' => [
-                    'class' => 'form-control hasDatepicker',
+//                    'class' => 'hasDatepicker',
                     'placeholder' => 'Начало',
-                    'id' => 'from',
                     ],
                 'required' => false,
             ])
             ->add('end', TextType::class, [
+                'label' => ' ',
                 'attr' => [
-                    'class' => 'form-control hasDatepicker',
+//                    'class' => 'hasDatepicker',
                     'placeholder' => 'Конец',
-                    'id' => 'to',
                     'required' => false,
                 ],
                 'required' => false,
@@ -55,7 +53,7 @@ class TransactionFilterFormType extends AbstractType
             ->add('search', SubmitType::class, [
                 'label' => 'Выбрать',
                 'attr' => [
-                    'class' => 'btn btn-success'
+                    'class' => 'btn-success'
                 ],
             ])
         ;

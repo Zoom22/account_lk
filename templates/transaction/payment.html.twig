@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h3 class="display-6 text-center mb-4">Расчетный день</h3>
+    {{ form_start(form) }}
+    <p class="mb-3">
+    <div class="row">
+        <div class="col">
+            Выберите месяц <span class="small">(не более 3 месяцев вперед)</span>
+        </div>
+        <div class="col">
+
+            {{ form_widget(form.month) }}
+        </div>
+
+        <div class="col">
+
+            за который планируете произвести оплату.
+        </div>
+
+        {{ form_row(form.submit) }}
+    </div>
+    </p>
+    {{ form_end(form) }}
+{% endblock %}
+
+
+

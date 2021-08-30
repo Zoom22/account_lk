@@ -2,7 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Service;
+use App\Entity\Subscription;
 use App\Entity\Transaction;
+use App\Entity\User;
+use Carbon\Carbon;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,34 +23,6 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    // /**
-    //  * @return Transaction[] Returns an array of Transaction objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-
-//    public function findOneBySomeField($value): ?Transaction
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
-
     public function filterByService($serviceId, ServiceRepository $serviceRepository)
     {
         $service = $serviceRepository->find(intval($serviceId));
@@ -56,6 +32,32 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('val', $service)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findNextMonthsPayments(Service $service, User $user)
+    {
+        $month = $this->get3NextMonth();
+        $nextMonthsQuery = 't.period = ' . $month[0] . ' OR ' . 't.period = ' . $month[1] . ' OR ' . 't.period = ' . $month[2];
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.service = :service')
+            ->andWhere('t.user = :user')
+            ->andWhere($nextMonthsQuery)
+            ->setParameter('service', $service)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array
+     */
+    private function get3NextMonth(): array
+    {
+        $result = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $result[] = Carbon::now()->addMonthNoOverflow($i)->format('mY');
+        }
+        return $result;
     }
 
 }

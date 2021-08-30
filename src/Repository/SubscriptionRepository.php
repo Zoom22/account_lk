@@ -32,31 +32,4 @@ class SubscriptionRepository extends ServiceEntityRepository
              ->getSingleScalarResult());
     }
 
-    // /**
-    //  * @return Subscription[] Returns an array of Subscription objects
-    //  */
-
-//    public function findByUser($userId)
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.user = :val')
-//            ->setParameter('val', $userId)
-//            ->orderBy('s.createdAt', 'ASC')
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-
-    /*
-    public function findOneBySomeField($value): ?Subscription
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -6,6 +6,7 @@ use App\Entity\Transaction;
 use App\Form\SubscriptionFormType;
 use App\Repository\ServiceRepository;
 use App\Repository\SubscriptionRepository;
+use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,10 +27,10 @@ class SubscriptionController extends AbstractController
      */
 
     public function add(
-        Request $request,
+        Request                $request,
         EntityManagerInterface $em,
-        UserRepository $userRepository,
-        ServiceRepository $serviceRepository,
+        UserRepository         $userRepository,
+        ServiceRepository      $serviceRepository,
         SubscriptionRepository $subscriptionRepository
     )
     {
@@ -66,9 +67,8 @@ class SubscriptionController extends AbstractController
                         ->setResult($user->getBalance() - $total)
                         ->setUser($user);
                     $em->persist($transaction);
-                    $em->flush();
                     $user->setBalance($user->getBalance() - $total);
-                    $em->persist($transaction);
+                    $em->persist($user);
                     $em->flush();
                     return $this->redirectToRoute('app_services_index');
                 } else {
@@ -91,35 +91,50 @@ class SubscriptionController extends AbstractController
      * @Route("/delete", methods={"POST"})
      */
     public function delete(
-        Request $request,
+        Request                $request,
         EntityManagerInterface $em,
         SubscriptionRepository $subscriptionRepository,
-        UserRepository $userRepository
+        TransactionRepository  $transactionRepository,
+        UserRepository         $userRepository
     )
     {
         $subscriptionId = intval($request->get('delete'));
         //todo Валидация данных POST
 
-        //todo в шаблоне вывод подтверждения удаления
         $subscription = $subscriptionRepository->find($subscriptionId);
 
         $user = $userRepository->getUser();
 
+        //Current month refund
         $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
         $total = round($subscription->getQuantity() * $subscription->getService()->getPrice() * $period, 0);
         $user->setBalance($user->getBalance() + $total);
         $em->persist($user);
-        $em->flush();
-        $em->remove($subscription);
-        $em->flush();
-        $transaction = new Transaction();
-        $transaction
+        $refundTransaction = new Transaction();
+        $refundTransaction
             ->setPeriod(date('mY'))
             ->setAmount(-$total)
             ->setService($subscription->getService())
             ->setResult($user->getBalance())
             ->setUser($user);
-        $em->persist($transaction);
+        $em->persist($refundTransaction);
+
+        //Next months refund
+        $transactions = $transactionRepository->findNextMonthsPayments($subscription->getService(), $user);
+        foreach ($transactions as $transaction) {
+            $total = $transaction->getAmount();
+            $user->setBalance($user->getBalance() + $total);
+            $refundTransaction = new Transaction();
+            $refundTransaction
+                ->setPeriod($transaction->getPeriod())
+                ->setAmount(-$total)
+                ->setService($transaction->getService())
+                ->setResult($user->getBalance())
+                ->setUser($user);
+            $em->persist($refundTransaction);
+        }
+
+        $em->remove($subscription);
         $em->flush();
         return $this->redirectToRoute('app_services_index');
     }

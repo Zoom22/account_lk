@@ -4,7 +4,7 @@
 
     <main>
         {% if subscriptions| length > 0 %}
-        <h2 class="display-6 text-center mb-4">Подключенные услуги</h2>
+            <h2 class="display-6 text-center mb-4">Подключенные услуги</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -27,9 +27,39 @@
                             <td>{{ subs.service.price * subs.quantity }} руб.</td>
                             <td>
                                 <form action="/delete" method="post">
-                                    <button type="submit" class="btn btn-primary btn-sm" name="delete"
-                                            value="{{ subs.id }}">Отключить
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modal{{ subs.id }}">
+                                        Отключить
                                     </button>
+
+                                    <div class="modal fade" id="modal{{ subs.id }}" tabindex="-1"
+                                         aria-labelledby="modalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalLabel">Отключение услуги</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы уверены, что хотите отключить услугу {{ subs.service.name }}?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Отмена
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary" name="delete"
+                                                            value="{{ subs.id }}">Отключить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    {# <button type="submit" class="btn btn-primary btn-sm" name="delete" #}
+                                    {# value="{{ subs.id }}">Отключить #}
+                                    {# </button> #}
                                 </form>
                             </td>
                         </tr>

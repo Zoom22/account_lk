@@ -16,9 +16,9 @@ class ServicesController extends AbstractController
      * @Route("/")
      */
     public function index(
-        UserRepository $userRepository,
+        UserRepository         $userRepository,
         SubscriptionRepository $subscriptionRepository,
-        ServiceRepository $serviceRepository
+        ServiceRepository      $serviceRepository
     )
     {
         $user = $userRepository->getUser();
