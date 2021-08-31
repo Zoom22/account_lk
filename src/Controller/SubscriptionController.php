@@ -34,57 +34,58 @@ class SubscriptionController extends AbstractController
         SubscriptionRepository $subscriptionRepository
     )
     {
-        $user = $userRepository->getUser();
-
         $serviceId = intval($request->query->get('serviceId'));
-        // todo Валидация на корректность serviceId
-        if ($serviceId) {
-            $form = $this->createForm(SubscriptionFormType::class, null, [
-                'method' => 'POST',
-            ]);
+        if ($serviceId) { //Is get serviceId exist?
             $service = $serviceRepository->find($serviceId);
 
-            $form->handleRequest($request);
+            if ($service) { //Is valid service exist?
+                $user = $userRepository->getUser();
 
-            if (
-                $form->isSubmitted()
-                && $form->isValid()
-                && $subscriptionRepository->isNotSubscribed($user, $service)
-            ) {
-                $subscription = $form->getData();
-                $subscription->setService($service);
-                $subscription->setUser($user);
-                $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
-                $total = round($subscription->getQuantity() * $service->getPrice() * $period, 0);
-                if ($user->getBalance() >= $total) {
-                    $em->persist($subscription);
-                    $em->flush();
-                    $transaction = new Transaction();
-                    $transaction
-                        ->setPeriod(date('mY'))
-                        ->setAmount($total)
-                        ->setService($service)
-                        ->setResult($user->getBalance() - $total)
-                        ->setUser($user);
-                    $em->persist($transaction);
-                    $user->setBalance($user->getBalance() - $total);
-                    $em->persist($user);
-                    $em->flush();
-                    return $this->redirectToRoute('app_services_index');
-                } else {
-                    //todo Обработка ошибки "Недостаточно средств на балансе"
-                    return $this->redirectToRoute('app_services_index');
+                $form = $this->createForm(SubscriptionFormType::class, null, [
+                    'method' => 'POST',
+                ]);
+                $form->handleRequest($request);
+
+                if (
+                    $form->isSubmitted()
+                    && $form->isValid()
+                    && $subscriptionRepository->isNotSubscribed($user, $service)
+                ) {
+                    $subscription = $form->getData();
+                    $subscription->setService($service);
+                    $subscription->setUser($user);
+                    $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
+                    $total = round($subscription->getQuantity() * $service->getPrice() * $period, 0);
+                    if ($user->getBalance() >= $total) {
+                        $em->persist($subscription);
+                        $em->flush();
+                        $transaction = new Transaction();
+                        $transaction
+                            ->setPeriod(date('mY'))
+                            ->setAmount($total)
+                            ->setService($service)
+                            ->setResult($user->getBalance() - $total)
+                            ->setUser($user);
+                        $em->persist($transaction);
+                        $user->setBalance($user->getBalance() - $total);
+                        $em->persist($user);
+                        $em->flush();
+                        return $this->redirectToRoute('app_services_index');
+                    } else {
+                        return $this->redirectToRoute('app_services_index');
+                    }
                 }
+                return $this->render('create.html.twig', [
+                    'subscriptionForm' => $form->createView(),
+                    'title' => 'Подписка на услугу',
+                    'user' => $user,
+                    'service' => $service,
+                ]);
             }
-            //todo Обработка ошибки "Уже подписан" и ошибок формы
         }
 
-        return $this->render('create.html.twig', [
-            'subscriptionForm' => $form->createView(),
-            'title' => 'Подписка на услугу',
-            'user' => $user,
-            'service' => $service,
-        ]);
+        return $this->redirectToRoute('app_services_index');
+
     }
 
     /**
@@ -99,43 +100,45 @@ class SubscriptionController extends AbstractController
     )
     {
         $subscriptionId = intval($request->get('delete'));
-        //todo Валидация данных POST
+        if ($subscriptionId) {
+            $subscription = $subscriptionRepository->find($subscriptionId);
 
-        $subscription = $subscriptionRepository->find($subscriptionId);
+            if ($subscription) {
+                $user = $userRepository->getUser();
 
-        $user = $userRepository->getUser();
+                //Current month refund
+                $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
+                $total = round($subscription->getQuantity() * $subscription->getService()->getPrice() * $period, 0);
+                $user->setBalance($user->getBalance() + $total);
+                $em->persist($user);
+                $refundTransaction = new Transaction();
+                $refundTransaction
+                    ->setPeriod(date('mY'))
+                    ->setAmount(-$total)
+                    ->setService($subscription->getService())
+                    ->setResult($user->getBalance())
+                    ->setUser($user);
+                $em->persist($refundTransaction);
 
-        //Current month refund
-        $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
-        $total = round($subscription->getQuantity() * $subscription->getService()->getPrice() * $period, 0);
-        $user->setBalance($user->getBalance() + $total);
-        $em->persist($user);
-        $refundTransaction = new Transaction();
-        $refundTransaction
-            ->setPeriod(date('mY'))
-            ->setAmount(-$total)
-            ->setService($subscription->getService())
-            ->setResult($user->getBalance())
-            ->setUser($user);
-        $em->persist($refundTransaction);
+                //Next months refund
+                $transactions = $transactionRepository->findNextMonthsPayments($subscription->getService(), $user);
+                foreach ($transactions as $transaction) {
+                    $total = $transaction->getAmount();
+                    $user->setBalance($user->getBalance() + $total);
+                    $refundTransaction = new Transaction();
+                    $refundTransaction
+                        ->setPeriod($transaction->getPeriod())
+                        ->setAmount(-$total)
+                        ->setService($transaction->getService())
+                        ->setResult($user->getBalance())
+                        ->setUser($user);
+                    $em->persist($refundTransaction);
+                }
 
-        //Next months refund
-        $transactions = $transactionRepository->findNextMonthsPayments($subscription->getService(), $user);
-        foreach ($transactions as $transaction) {
-            $total = $transaction->getAmount();
-            $user->setBalance($user->getBalance() + $total);
-            $refundTransaction = new Transaction();
-            $refundTransaction
-                ->setPeriod($transaction->getPeriod())
-                ->setAmount(-$total)
-                ->setService($transaction->getService())
-                ->setResult($user->getBalance())
-                ->setUser($user);
-            $em->persist($refundTransaction);
+                $em->remove($subscription);
+                $em->flush();
+            }
         }
-
-        $em->remove($subscription);
-        $em->flush();
         return $this->redirectToRoute('app_services_index');
     }
 }

@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Subscription;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Form\PaymentFormType;
 use App\Form\TransactionFilterFormType;
-use App\Repository\ServiceRepository;
 use App\Repository\SubscriptionRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
@@ -24,6 +25,7 @@ class TransactionController extends AbstractController
      * @param Request $request
      * @param UserRepository $userRepository
      * @param TransactionRepository $transactionsRepository
+     * @param PaginatorInterface $paginator
      * @return Response
      */
 
@@ -38,11 +40,9 @@ class TransactionController extends AbstractController
 
         $form = $this->createForm(TransactionFilterFormType::class, null, ['method' => 'GET']);
 
-//        dd($request->query);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            extract($request->query->get('transaction_filter_form'));
+            extract( $request->query->get('transaction_filter_form'));
 
             $qb = $transactionsRepository->createQueryBuilder('t');
             if (!empty($start)) {
@@ -85,21 +85,22 @@ class TransactionController extends AbstractController
 
     /**
      * @Route("/deposit")
+     * @param Request $request
      * @param UserRepository $userRepository
+     * @param EntityManagerInterface $em
      * @return Response
      */
     public function deposit(
         Request                $request,
         UserRepository         $userRepository,
         EntityManagerInterface $em
-    )
+    ): Response
     {
         $user = $userRepository->getUser();
 
         $deposit = intval($request->request->get('deposit'));
 
-        //todo Валидация на положительное число, обработка ошибки
-        if ($deposit > 0) {
+        if (!empty($deposit) && $deposit > 0) {
             $user->setBalance($user->getBalance() + $deposit);
             $transaction = new Transaction();
             $transaction
@@ -133,7 +134,7 @@ class TransactionController extends AbstractController
         SubscriptionRepository $subscriptionRepository,
         TransactionRepository  $transactionRepository,
         EntityManagerInterface $em
-    )
+    ): Response
     {
         $user = $userRepository->getUser();
 
@@ -166,7 +167,6 @@ class TransactionController extends AbstractController
                 return $this->redirectToRoute('app_transaction_index');
             } else {
                 $user->setBalance($balance);
-                //todo обработка ошибки нетхватает средств
             }
         }
 
@@ -178,14 +178,14 @@ class TransactionController extends AbstractController
     }
 
     /**
-     * @param \App\Entity\Subscription $subscription
+     * @param Subscription $subscription
      * @param $total
      * @param int $month
-     * @param \App\Entity\User|null $user
+     * @param User|null $user
      * @param EntityManagerInterface $em
      * @return array
      */
-    private function prepareTransaction(\App\Entity\Subscription $subscription, $total, int $month, ?\App\Entity\User $user, EntityManagerInterface $em): array
+    private function prepareTransaction(Subscription $subscription, $total, int $month, ?User $user, EntityManagerInterface $em): array
     {
         $transaction = new Transaction();
         $amount = $subscription->getQuantity() * $subscription->getService()->getPrice();

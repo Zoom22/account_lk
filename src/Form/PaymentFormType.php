@@ -22,7 +22,7 @@ class PaymentFormType extends AbstractType
                 'choices' => $paymentMonth,
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Выбрать',
+                'label' => 'Оплатить',
                 'attr' => [
                     'class' => 'btn-success'
                 ],

@@ -6,8 +6,8 @@ use App\Entity\Transaction;
 use App\Repository\TransactionRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,16 +16,22 @@ class TransactionFilterFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('start', TextType::class, [
+            ->add('start', DateType::class, [
                 'label' => 'Фильтр по датам:',
+                'widget' => 'single_text',
+                'format' => 'dd.mm.yyyy',
+                'html5' => false,
                 'attr' => [
 //                    'class' => 'hasDatepicker',
                     'placeholder' => 'Начало',
                     ],
                 'required' => false,
             ])
-            ->add('end', TextType::class, [
+            ->add('end', DateType::class, [
                 'label' => ' ',
+                'widget' => 'single_text',
+                'format' => 'dd.mm.yyyy',
+                'html5' => false,
                 'attr' => [
 //                    'class' => 'hasDatepicker',
                     'placeholder' => 'Конец',

@@ -19,6 +19,8 @@
                     {{ form_widget(filterForm.start) }}
                     <span class="input-group-text">-</span>
                     {{ form_widget(filterForm.end) }}
+                    {{ form_errors(filterForm.start) }}
+
                 </div>
             </div>
             <div class="mb-5 col">

@@ -25,7 +25,6 @@ class Transaction
     private $createdAt;
 
     /**
-
      * @ORM\Column(type="integer")
      */
     private $period;
