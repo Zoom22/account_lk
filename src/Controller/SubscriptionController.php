@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,9 +24,10 @@ class SubscriptionController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param UserRepository $userRepository
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @param ServiceRepository $serviceRepository
+     * @param SubscriptionRepository $subscriptionRepository
+     * @return RedirectResponse|Response
      */
-
     public function add(
         Request                $request,
         EntityManagerInterface $em,
@@ -49,13 +51,14 @@ class SubscriptionController extends AbstractController
                 if (
                     $form->isSubmitted()
                     && $form->isValid()
-                    && $subscriptionRepository->isNotSubscribed($user, $service)
+                    && !$subscriptionRepository->isSubscribed($user, $service)
                 ) {
                     $subscription = $form->getData();
                     $subscription->setService($service);
                     $subscription->setUser($user);
                     $period = Carbon::now()->diffInDays(Carbon::parse('first day of next month')) / (Carbon::now()->daysInMonth);
                     $total = round($subscription->getQuantity() * $service->getPrice() * $period, 0);
+
                     if ($user->getBalance() >= $total) {
                         $em->persist($subscription);
                         $em->flush();
@@ -70,11 +73,11 @@ class SubscriptionController extends AbstractController
                         $user->setBalance($user->getBalance() - $total);
                         $em->persist($user);
                         $em->flush();
-                        return $this->redirectToRoute('app_services_index');
-                    } else {
-                        return $this->redirectToRoute('app_services_index');
                     }
+
+                    return $this->redirectToRoute('app_services_index');
                 }
+
                 return $this->render('create.html.twig', [
                     'subscriptionForm' => $form->createView(),
                     'title' => 'Подписка на услугу',
@@ -89,7 +92,13 @@ class SubscriptionController extends AbstractController
     }
 
     /**
-     * @Route("/delete", methods={"POST"})
+     * @Route("/delete")
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param SubscriptionRepository $subscriptionRepository
+     * @param TransactionRepository $transactionRepository
+     * @param UserRepository $userRepository
+     * @return RedirectResponse
      */
     public function delete(
         Request                $request,
@@ -97,7 +106,7 @@ class SubscriptionController extends AbstractController
         SubscriptionRepository $subscriptionRepository,
         TransactionRepository  $transactionRepository,
         UserRepository         $userRepository
-    )
+    ): RedirectResponse
     {
         $subscriptionId = intval($request->get('delete'));
         if ($subscriptionId) {
@@ -120,7 +129,7 @@ class SubscriptionController extends AbstractController
                     ->setUser($user);
                 $em->persist($refundTransaction);
 
-                //Next months refund
+                //Next month's refund
                 $transactions = $transactionRepository->findNextMonthsPayments($subscription->getService(), $user);
                 foreach ($transactions as $transaction) {
                     $total = $transaction->getAmount();
@@ -139,6 +148,7 @@ class SubscriptionController extends AbstractController
                 $em->flush();
             }
         }
+
         return $this->redirectToRoute('app_services_index');
     }
 }

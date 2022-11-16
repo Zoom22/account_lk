@@ -4,7 +4,10 @@ namespace App\Repository;
 
 use App\Entity\Service;
 use App\Entity\Subscription;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,16 +23,27 @@ class SubscriptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Subscription::class);
     }
 
-    public function isNotSubscribed(?\App\Entity\User $user, ?\App\Entity\Service $service)
+    /**
+     * @param User|null $user
+     * @param Service|null $service
+     * @return bool
+     */
+    public function isSubscribed(?User $user, ?Service $service): bool
     {
-         return empty($this->createQueryBuilder('ss')
-             ->select('count(ss.id)')
-             ->andWhere('ss.user = :user')
-             ->andWhere('ss.service = :service')
-             ->setParameter('user', $user)
-             ->setParameter('service', $service)
-             ->getQuery()
-             ->getSingleScalarResult());
+        try {
+            $result = !empty($this->createQueryBuilder('subscription')
+                ->select('count(subscription.id)')
+                ->andWhere('subscription.user = :user')
+                ->andWhere('subscription.service = :service')
+                ->setParameter('user', $user)
+                ->setParameter('service', $service)
+                ->getQuery()
+                ->getSingleScalarResult());
+        } catch (NoResultException | NonUniqueResultException $e) {
+            $result = false;
+        }
+
+        return $result;
     }
 
 }

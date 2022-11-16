@@ -12,3 +12,4 @@
 /dev/
 /docker-compose.yml
 /init.sh
+/composer.phar

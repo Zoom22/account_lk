@@ -43,11 +43,11 @@ class TransactionFilterFormType extends AbstractType
                 'label' => 'Фильтр по услуге:',
                 'class' => Transaction::class,
                 'query_builder' => function (TransactionRepository $repository) {
-                        $qb = $repository->createQueryBuilder('t');
+                        $qb = $repository->createQueryBuilder('transaction');
                         $qb
-                        ->where($qb->expr()->isNotNull('t.service'))
-                        ->orderBy('t.createdAt', 'ASC')
-                        ->groupBy('t.service');
+                        ->where($qb->expr()->isNotNull('transaction.service'))
+                        ->orderBy('transaction.createdAt', 'ASC')
+                        ->groupBy('transaction.service');
                     return $qb;
                 },
                 'choice_label' => 'service.name',

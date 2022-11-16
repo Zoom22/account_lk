@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Service;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,11 +20,20 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
-    public function findNotSubscribed(?\App\Entity\User $user)
+    /**
+     * @param User|null $user
+     * @return float|int|mixed|string
+     */
+    public function findNotSubscribed(?User $user)
     {
-        return $this->createQueryBuilder('s')
-            ->leftJoin('App\Entity\Subscription', 'ss', 'WITH', 's.id = ss.service and ss.user = :user')
-            ->where('ss.service IS NULL')
+        return $this->createQueryBuilder('service')
+            ->leftJoin(
+                'App\Entity\Subscription',
+                'subscription',
+                'WITH',
+                'service.id = subscription.service AND subscription.user = :user'
+            )
+            ->where('subscription.service IS NULL')
             ->setParameter('user', $user)
             ->getQuery()
             ->getResult()

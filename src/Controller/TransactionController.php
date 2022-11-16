@@ -28,7 +28,6 @@ class TransactionController extends AbstractController
      * @param PaginatorInterface $paginator
      * @return Response
      */
-
     public function index(
         Request               $request,
         UserRepository        $userRepository,
@@ -42,28 +41,29 @@ class TransactionController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            extract( $request->query->get('transaction_filter_form'));
 
-            $qb = $transactionsRepository->createQueryBuilder('t');
-            if (!empty($start)) {
-                $qb->andWhere('t.createdAt >= :start')
-                    ->setParameter('start', Carbon::parse($start));
+            $filters = $request->query->get('transaction_filter_form');
+
+            $qb = $transactionsRepository->createQueryBuilder('transaction');
+            if (!empty($filters['start'])) {
+                $qb->andWhere('transaction.createdAt >= :start')
+                    ->setParameter('start', Carbon::parse($filters['start']));
             }
-            if (!empty($end)) {
-                $qb->andWhere('t.createdAt <= :end')
-                    ->setParameter('end', Carbon::parse($end)->addDay());
+            if (!empty($filters['end'])) {
+                $qb->andWhere('transaction.createdAt <= :end')
+                    ->setParameter('end', Carbon::parse($filters['end'])->addDay());
             }
-            if (!empty($serviceId)) {
-                $service = $transactionsRepository->find($serviceId)->getService();
-                $qb->andWhere('t.service = :service')
+            if (!empty($filters['serviceId'])) {
+                $service = $transactionsRepository->find($filters['serviceId'])->getService();
+                $qb->andWhere('transaction.service = :service')
                     ->setParameter('service', $service);
             }
             $transactions = $qb
-                ->andWhere('t.user = :user')
+                ->andWhere('transaction.user = :user')
                 ->setParameter('user', $user)
-                ->orderBy('t.createdAt', 'DESC')
-//                ->getQuery()
-//                ->getResult()
+                ->orderBy('transaction.createdAt', 'DESC')
+                ->getQuery()
+                ->getResult()
             ;
         } else {
             $transactions = $transactionsRepository->findBy(['user' => $user]);
@@ -199,7 +199,8 @@ class TransactionController extends AbstractController
         $user->setBalance($user->getBalance() - $amount);
         $em->persist($transaction);
         $em->persist($user);
-        return array($transaction, $amount, $total);
+
+        return [$transaction, $amount, $total];
     }
 
 }

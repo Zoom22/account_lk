@@ -19,7 +19,10 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function getUser()
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
     {
         //hardcoded logged user for this test task
         return $this->find(1);
