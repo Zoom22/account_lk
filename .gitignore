@@ -9,3 +9,6 @@
 /vendor/
 .idea
 ###< symfony/framework-bundle ###
+/dev/
+/docker-compose.yml
+/init.sh
